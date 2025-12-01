@@ -1,21 +1,41 @@
+import kotlin.math.absoluteValue
+
 fun main() {
-    fun part1(input: List<String>): Int {
-        return input.size
-    }
 
-    fun part2(input: List<String>): Int {
-        return input.size
-    }
+    var startingPoint = 50
+    var zeroTimesPart1 = 0
+    var zeroTimesPart2 = 0
 
-    // Test if implementation meets criteria from the description, like:
-    check(part1(listOf("test_input")) == 1)
+    readInput("Day01")
+        .forEach { line ->
+            val (direction, steps) = line[0] to line.substring(1).toInt()
+            val currentPoint = startingPoint
 
-    // Or read a large test input from the `src/Day01_test.txt` file:
-    val testInput = readInput("Day01_test")
-    check(part1(testInput) == 1)
+            val bump = when (direction) {
+                'R' -> steps
+                'L' -> -steps
+                else -> throw IllegalArgumentException("Invalid direction")
+            }
 
-    // Read the input from the `src/Day01.txt` file.
-    val input = readInput("Day01")
-    part1(input).println()
-    part2(input).println()
+            startingPoint = (startingPoint + bump).mod(100)
+
+            val untilNextZero = when {
+                currentPoint == 0 -> 100
+                bump > 0 -> 100 - currentPoint
+                else -> currentPoint
+            }
+
+            val zeroes = when {
+                bump.absoluteValue >= untilNextZero -> 1 + (bump.absoluteValue - untilNextZero) / 100
+                else -> 0
+            }
+            zeroTimesPart2 += zeroes
+
+            if (startingPoint == 0) {
+                zeroTimesPart1++
+            }
+        }
+    println("Part 1: $zeroTimesPart1")
+    println("Part 2: $zeroTimesPart2")
+
 }
