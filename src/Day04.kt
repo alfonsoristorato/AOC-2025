@@ -1,27 +1,17 @@
 fun main() {
 
     val mapOfRolls = readInput("Day04")
-    val okRolls = buildList {
-        mapOfRolls.forEachIndexed { lineIndex, toiletRollLine ->
-            toiletRollLine.forEachIndexed { rowIndex, row ->
-                if (row == '@') {
-                    val adjacentCount = adjacentRolls(mapOfRolls, rowIndex, lineIndex)
-                    if (adjacentCount < 4) {
-                        add(Pair(rowIndex, lineIndex))
-                    }
-                }
-            }
-        }
-    }
+    val okRolls = checkUntilNoMoreRemovals(mapOfRolls, emptySet(),true)
     println("Part 1: ${okRolls.size}")
-    println("Part 2: ${checkUntilNoMoreRemovals(mapOfRolls, okRolls).size}")
+    println("Part 2: ${checkUntilNoMoreRemovals(mapOfRolls, okRolls.toSet()).size}")
 }
 
 private fun checkUntilNoMoreRemovals(
     mapOfRolls: List<String>,
-    removedRollsSoFar: List<Pair<Int, Int>>
-): List<Pair<Int, Int>> {
-    val removedRolls = removedRollsSoFar.toMutableList()
+    removedRollsSoFar: Set<Pair<Int, Int>>,
+    stopAtFirstIteration: Boolean = false
+): Set<Pair<Int, Int>> {
+    val removedRolls = removedRollsSoFar.toMutableSet()
     val removedRollsBefore = removedRolls.size
     mapOfRolls.forEachIndexed { lineIndex, toiletRollLine ->
         toiletRollLine.forEachIndexed { rowIndex, row ->
@@ -33,17 +23,18 @@ private fun checkUntilNoMoreRemovals(
             }
         }
     }
-    if (removedRolls.size > removedRollsBefore) {
-        checkUntilNoMoreRemovals(mapOfRolls, removedRolls)
+    if (removedRolls.size == removedRollsBefore || stopAtFirstIteration) {
+        return removedRolls
     }
-    return removedRolls
+    return checkUntilNoMoreRemovals(mapOfRolls, removedRolls)
+
 }
 
 private fun adjacentRolls(
     mapOfRolls: List<String>,
     currentRollX: Int,
     currentRollY: Int,
-    removedRolls: List<Pair<Int, Int>>? = null
+    removedRolls: Set<Pair<Int, Int>>? = null
 ): Int {
     var adjacentCount = 0
 
@@ -67,7 +58,7 @@ private fun adjacentRolls(
     return adjacentCount
 }
 
-fun checkRollInPosition(mapOfRolls: List<String>, x: Int, y: Int, removedRolls: List<Pair<Int, Int>>?): Boolean {
+fun checkRollInPosition(mapOfRolls: List<String>, x: Int, y: Int, removedRolls: Set<Pair<Int, Int>>?): Boolean {
     if (y in mapOfRolls.indices && x in mapOfRolls[y].indices) {
         if (removedRolls != null) {
             return mapOfRolls[y][x] == '@' && !removedRolls.contains(Pair(x, y))
