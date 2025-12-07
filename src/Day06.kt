@@ -19,10 +19,9 @@ fun main() {
     val numberLines = input.take(numbersSize)
     val columns = operationsList.mapIndexed { idx, (_, spaceCount) ->
         numberLines.map { line ->
-            println("$idx")
             line.substring(
                 opsWithIndices[idx].second,
-                idx * spaceCount + spaceCount + idx
+                opsWithIndices[idx].second + spaceCount
             )
         }
     }
